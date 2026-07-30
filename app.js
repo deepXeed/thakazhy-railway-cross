@@ -25,7 +25,7 @@ const MAX_REPORTS = 12;
 // Thakazhy Cross center point (near railway station)
 const CROSSING_LAT = 9.374301;
 const CROSSING_LNG = 76.407578;
-const MAX_DISTANCE_METERS = 20000;
+const MAX_DISTANCE_METERS = 150;
 
 const els = {
   statusCard: document.getElementById("status-card"),
