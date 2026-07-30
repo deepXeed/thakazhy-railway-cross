@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+import { getDatabase, ref, push, remove, onValue, query, orderByChild, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 // ---------- PASTE YOUR CONFIG HERE ----------
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -34,14 +34,66 @@ const els = {
   statusDetail: document.getElementById("status-detail"),
   reportList: document.getElementById("report-list"),
   reportCount: document.getElementById("report-count"),
+  reportTally: document.getElementById("report-tally"),
   emptyState: document.getElementById("empty-state"),
   lastUpdated: document.getElementById("last-updated"),
   btnOpen: document.getElementById("btn-open"),
   btnClosed: document.getElementById("btn-closed"),
+  reportFormBlock: document.getElementById("report-form-block"),
+  myReportBlock: document.getElementById("my-report-block"),
+  myReportIcon: document.getElementById("my-report-icon"),
+  myReportText: document.getElementById("my-report-text"),
+  btnCancel: document.getElementById("btn-cancel"),
 };
 
 let userAllowedToReport = false; // will be set after location check
 let liveReports = []; // Replaces localStorage
+
+// ---------- Device identity & "my report" tracking ----------
+// One device = one active report at a time. We remember the device with a
+// random ID in localStorage, and remember which Firebase report (by push key)
+// belongs to this device so it can be cancelled/corrected later.
+const DEVICE_ID_KEY = "thakazhy_device_id";
+const MY_REPORT_KEY = "thakazhy_my_report";
+
+function getDeviceId() {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if (!id) {
+    id = (window.crypto && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : "dev-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
+const deviceId = getDeviceId();
+
+function getMyReport() {
+  try {
+    const raw = localStorage.getItem(MY_REPORT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+function setMyReport(report) {
+  if (report) localStorage.setItem(MY_REPORT_KEY, JSON.stringify(report));
+  else localStorage.removeItem(MY_REPORT_KEY);
+}
+
+function updateMyReportUI() {
+  const my = getMyReport();
+  if (my) {
+    els.reportFormBlock.style.display = "none";
+    els.myReportBlock.style.display = "block";
+    els.myReportIcon.textContent = my.status === "open" ? "✓" : "✕";
+    els.myReportIcon.className = "my-report-icon " + my.status;
+    els.myReportText.textContent = `Gate ${my.status.toUpperCase()} · ${timeAgo(my.time)}`;
+  } else {
+    els.reportFormBlock.style.display = "block";
+    els.myReportBlock.style.display = "none";
+  }
+}
 
 // ---------- Helpers ----------
 function timeAgo(timestamp) {
@@ -121,6 +173,15 @@ function setButtonsEnabled(enabled, message = null) {
 }
 
 // ---------- Status logic ----------
+function countByStatus(reports) {
+  let open = 0, closed = 0;
+  reports.forEach((r) => {
+    if (r.status === "open") open++;
+    else if (r.status === "closed") closed++;
+  });
+  return { open, closed };
+}
+
 function getCurrentStatus(reports) {
   if (!reports.length) {
     return {
@@ -132,16 +193,6 @@ function getCurrentStatus(reports) {
   }
 
   const latest = reports[0];
-  const ageMin = (Date.now() - latest.time) / 60000;
-
-  if (ageMin > 25) {
-    return {
-      status: "unknown",
-      label: "UNKNOWN",
-      detail: `Last report was ${timeAgo(latest.time)}`,
-      icon: "?",
-    };
-  }
 
   if (latest.status === "open") {
     return {
@@ -173,6 +224,11 @@ function render() {
   els.reportCount.textContent = reports.length;
   els.reportList.innerHTML = "";
 
+  const tally = countByStatus(reports);
+  els.reportTally.innerHTML = reports.length
+    ? `<span class="tally-open">${tally.open} Open</span> · <span class="tally-closed">${tally.closed} Closed</span> reported`
+    : "";
+
   if (reports.length === 0) {
     els.emptyState.classList.add("visible");
   } else {
@@ -190,6 +246,7 @@ function render() {
   }
 
   els.lastUpdated.textContent = formatTime(new Date());
+  updateMyReportUI();
 }
 
 async function addReport(status) {
@@ -197,28 +254,61 @@ async function addReport(status) {
     alert("You must be within 120 meters of Thakazhy Cross to report.");
     return;
   }
+  if (getMyReport()) {
+    // Shouldn't normally happen since the buttons are hidden once you've
+    // reported, but guard against stale UI/double-clicks just in case.
+    return;
+  }
 
   setButtonsEnabled(false, "Sending report...");
 
   try {
-    await push(reportsRef, {
+    const result = await push(reportsRef, {
       status: status,
-      time: Date.now()
+      time: Date.now(),
+      deviceId: deviceId,
     });
+    setMyReport({ id: result.key, status, time: Date.now() });
+    updateMyReportUI();
   } catch (error) {
     console.error("Error saving report:", error);
     alert("Failed to send report.");
-  } finally {
-    setButtonsEnabled(true, "Report sent successfully!");
-    setTimeout(() => setButtonsEnabled(true, "Your report helps others nearby"), 3000);
+    setButtonsEnabled(true, "Your report helps others nearby");
   }
+}
+
+async function cancelMyReport() {
+  const my = getMyReport();
+  if (!my) return;
+
+  els.btnCancel.disabled = true;
+  els.btnCancel.textContent = "Cancelling…";
+
+  try {
+    await remove(ref(db, `reports/${my.id}`));
+  } catch (error) {
+    console.error("Error cancelling report:", error);
+    alert("Failed to cancel your report. Please try again.");
+    els.btnCancel.disabled = false;
+    els.btnCancel.textContent = "Cancel my report";
+    return;
+  }
+
+  setMyReport(null);
+  els.btnCancel.disabled = false;
+  els.btnCancel.textContent = "Cancel my report";
+  updateMyReportUI();
+  // Re-check location so the report buttons come back correctly enabled/disabled.
+  checkLocation();
 }
 
 // ---------- Events ----------
 els.btnOpen.addEventListener("click", () => addReport("open"));
 els.btnClosed.addEventListener("click", () => addReport("closed"));
+els.btnCancel.addEventListener("click", cancelMyReport);
 
 // ---------- Init ----------
+updateMyReportUI();
 setButtonsEnabled(false, "Checking your location...");
 checkLocation();
 

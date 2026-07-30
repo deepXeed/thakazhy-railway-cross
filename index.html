@@ -38,18 +38,29 @@
 
     <!-- Report Buttons -->
     <section class="report-section">
-      <p class="report-title">Report current status</p>
-      <div class="report-buttons">
-        <button class="btn btn-open" id="btn-open">
-          <span class="btn-icon">✓</span>
-          Gate is OPEN
-        </button>
-        <button class="btn btn-closed" id="btn-closed">
-          <span class="btn-icon">✕</span>
-          Gate is CLOSED
-        </button>
+      <div id="report-form-block">
+        <p class="report-title">Report current status</p>
+        <div class="report-buttons">
+          <button class="btn btn-open" id="btn-open">
+            <span class="btn-icon">✓</span>
+            Gate is OPEN
+          </button>
+          <button class="btn btn-closed" id="btn-closed">
+            <span class="btn-icon">✕</span>
+            Gate is CLOSED
+          </button>
+        </div>
+        <p class="report-hint" id="report-hint">Your report helps others nearby</p>
       </div>
-      <p class="report-hint">Your report helps others nearby</p>
+
+      <div id="my-report-block" class="my-report-block" style="display:none;">
+        <p class="my-report-label">You reported</p>
+        <div class="my-report-status" id="my-report-status">
+          <span class="my-report-icon" id="my-report-icon"></span>
+          <span class="my-report-text" id="my-report-text"></span>
+        </div>
+        <button class="btn btn-cancel" id="btn-cancel">Cancel my report</button>
+      </div>
     </section>
 
     <!-- Simple Train Status Link -->
@@ -62,12 +73,22 @@
       <div class="train-link-arrow">→</div>
     </a>
 
+    <a href="https://erail.in/station-live/HAD" target="_blank" rel="noopener" class="train-link-card">
+      <div class="train-link-icon">🚆</div>
+      <div class="train-link-text">
+        <div class="train-link-title">Live Train Status</div>
+        <div class="train-link-sub">Harippadu (HAD) · erail.in</div>
+      </div>
+      <div class="train-link-arrow">→</div>
+    </a>
+
     <!-- Recent Reports -->
     <section class="section">
       <div class="section-header">
         <h3>Recent Reports</h3>
         <span class="badge" id="report-count">0</span>
       </div>
+      <p class="report-tally" id="report-tally"></p>
       <div class="report-list" id="report-list"></div>
       <p class="empty-state" id="empty-state">No reports yet. Be the first!</p>
     </section>

@@ -241,6 +241,85 @@ body::before {
   margin-top: 0.7rem;
 }
 
+/* My Report / Cancel block */
+.my-report-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1.1rem 1.1rem 1rem;
+  text-align: center;
+}
+
+.my-report-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.my-report-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.my-report-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--text-muted);
+}
+
+.my-report-icon.open {
+  background: rgba(61, 155, 106, 0.22);
+  color: var(--green-soft);
+}
+
+.my-report-icon.closed {
+  background: rgba(196, 92, 92, 0.2);
+  color: var(--red);
+}
+
+.my-report-text {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.btn-cancel {
+  width: 100%;
+  padding: 0.85rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-cancel:hover, .btn-cancel:focus {
+  background: var(--red-dim);
+  border-color: rgba(196, 92, 92, 0.4);
+  color: #e07a7a;
+}
+
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Simple Train Link Card */
 .train-link-card {
   display: flex;
@@ -315,6 +394,15 @@ body::before {
   min-width: 1.6rem;
   text-align: center;
 }
+
+.report-tally {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.9rem;
+}
+
+.report-tally .tally-open { color: var(--green-soft); font-weight: 600; }
+.report-tally .tally-closed { color: #e07a7a; font-weight: 600; }
 
 .report-list {
   display: flex;
