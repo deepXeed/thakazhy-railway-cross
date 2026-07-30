@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0c1a14" />
+  <title>Thakazhy Cross</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">🌿</div>
+        <div>
+          <h1 class="title">Thakazhy Cross</h1>
+          <p class="subtitle">Level Crossing Status</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="live-dot" id="live-dot"></span>
+        <span class="live-label">LIVE</span>
+      </div>
+    </header>
+
+    <!-- Main Status Card -->
+    <section class="status-card" id="status-card">
+      <div class="status-icon" id="status-icon">?</div>
+      <div class="status-text">
+        <h2 class="status-label" id="status-label">UNKNOWN</h2>
+        <p class="status-detail" id="status-detail">Waiting for first report</p>
+      </div>
+    </section>
+
+    <!-- Report Buttons -->
+    <section class="report-section">
+      <p class="report-title">Report current status</p>
+      <div class="report-buttons">
+        <button class="btn btn-open" id="btn-open">
+          <span class="btn-icon">✓</span>
+          Gate is OPEN
+        </button>
+        <button class="btn btn-closed" id="btn-closed">
+          <span class="btn-icon">✕</span>
+          Gate is CLOSED
+        </button>
+      </div>
+      <p class="report-hint">Your report helps others nearby</p>
+    </section>
+
+    <!-- Simple Train Status Link -->
+    <a href="https://erail.in/station-live/AMPA" target="_blank" rel="noopener" class="train-link-card">
+      <div class="train-link-icon">🚆</div>
+      <div class="train-link-text">
+        <div class="train-link-title">Live Train Status</div>
+        <div class="train-link-sub">Ambalapuzha (AMPA) · erail.in</div>
+      </div>
+      <div class="train-link-arrow">→</div>
+    </a>
+
+    <!-- Recent Reports -->
+    <section class="section">
+      <div class="section-header">
+        <h3>Recent Reports</h3>
+        <span class="badge" id="report-count">0</span>
+      </div>
+      <div class="report-list" id="report-list"></div>
+      <p class="empty-state" id="empty-state">No reports yet. Be the first!</p>
+    </section>
+
+    <!-- Footer info -->
+    <section class="section info-section">
+      <div class="info-row">
+        <span class="info-label">Last update</span>
+        <span class="info-value" id="last-updated">--</span>
+      </div>
+      <p class="disclaimer">
+        Crowdsourced data. Always follow official signals and barriers.
+      </p>
+    </section>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
